@@ -1,0 +1,29 @@
+name: Materialize character media
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/READY'
+permissions:
+  contents: write
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode staged media
+        run: |
+          set -euo pipefail
+          cat upload/ATLAS_FULL_UNIFORM.png.part* | tr -d '\n' | base64 -d > ATLAS_FULL_UNIFORM.png
+          cat upload/ATLAS_PROFILE_UNIFORM.png.part* | tr -d '\n' | base64 -d > ATLAS_PROFILE_UNIFORM.png
+          cat upload/FAUVE_SNS_AFTER_SHOWER.png.part* | tr -d '\n' | base64 -d > FAUVE_SNS_AFTER_SHOWER.png
+          cat upload/ATLAS_SNS_BASKETBALL.jpg.part* | tr -d '\n' | base64 -d > ATLAS_SNS_BASKETBALL.jpg
+          cat upload/ATLAS_SNS_LATE_NIGHT_BURGER.jpg.part* | tr -d '\n' | base64 -d > ATLAS_SNS_LATE_NIGHT_BURGER.jpg
+          rm -rf upload
+      - name: Commit assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ATLAS_FULL_UNIFORM.png ATLAS_PROFILE_UNIFORM.png FAUVE_SNS_AFTER_SHOWER.png ATLAS_SNS_BASKETBALL.jpg ATLAS_SNS_LATE_NIGHT_BURGER.jpg upload || true
+          git diff --cached --quiet || git commit -m "assets: add Atlas and Fauve character media"
+          git push
