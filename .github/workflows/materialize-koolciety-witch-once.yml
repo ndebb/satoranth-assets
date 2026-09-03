@@ -1,0 +1,38 @@
+name: Materialize Koolciety Witch media
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'upload/KOOLCIETY_WITCH_READY'
+permissions:
+  contents: write
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Decode canon witch media
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat upload/KOOLCIETY_WITCH.zip.part* | tr -d '\n' | base64 -d > /tmp/witch.zip
+          unzip -q /tmp/witch.zip -d /tmp/witch
+          cp /tmp/witch/namo.webp KOOLCIETY_WITCH__namo.webp
+          cp /tmp/witch/kiff.webp KOOLCIETY_WITCH__kiff.webp
+          cp /tmp/witch/kylaa.webp KOOLCIETY_WITCH__kylaa.webp
+          cp /tmp/witch/saturn.webp KOOLCIETY_WITCH__saturn.webp
+          cp /tmp/witch/mio.webp KOOLCIETY_WITCH__mio.webp
+          cp /tmp/witch/witch_group.webp KOOLCIETY_WITCH__group.webp
+          rm -rf upload
+          rm -f .github/workflows/materialize-koolciety-witch-once.yml
+      - name: Commit canon assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'assets: add canonical KPOP WITCH Koolciety media'
+          git push origin HEAD:main
